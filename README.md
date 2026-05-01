@@ -30,12 +30,6 @@ On Linux:
 go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem ./...
 ```
 
-On this macOS workspace, run the Linux benchmark through Lima:
-
-```sh
-limactl shell docker -- bash -lc 'set -euo pipefail; GOROOT=/tmp/go1.24.5; if [ ! -x "$GOROOT/bin/go" ]; then rm -rf "$GOROOT" && mkdir -p "$GOROOT" && curl -fsSL https://go.dev/dl/go1.24.5.linux-arm64.tar.gz | tar -C "$GOROOT" --strip-components=1 -xz; fi; cd /Users/yazhou/code/benchmark-splice && PATH="$GOROOT/bin:$PATH" go test -run "^$" -bench "^BenchmarkDownload512Chunks$" -benchmem ./...'
-```
-
 Sample result from Lima on Apple Silicon:
 
 ```text
