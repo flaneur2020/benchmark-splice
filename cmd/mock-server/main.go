@@ -35,11 +35,8 @@ func logThroughput(handler *mockserver.Handler) {
 		current := handler.BytesServed()
 		delta := current - previous
 		previous = current
-		if delta == 0 {
-			continue
-		}
 
 		gibPerSecond := float64(delta) / (1024 * 1024 * 1024) / throughputInterval.Seconds()
-		log.Printf("mock server IO throughput: %.6f GiBytes/s", gibPerSecond)
+		log.Printf("mock server IO throughput: %.6f GiBytes/s, total bytes: %d", gibPerSecond, current)
 	}
 }
