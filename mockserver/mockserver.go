@@ -35,10 +35,6 @@ func (h *Handler) BytesServed() uint64 {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/chunk" {
-		http.NotFound(w, r)
-		return
-	}
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Length", strconv.Itoa(len(h.chunk)))
 	w.WriteHeader(http.StatusOK)
