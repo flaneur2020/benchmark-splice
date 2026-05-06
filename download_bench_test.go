@@ -8,31 +8,28 @@ import (
 	"net/http/httptest"
 	"sync"
 	"testing"
+	"time"
 
 	"benchmark-splice/backend"
 	"benchmark-splice/backend/iocopy"
 	"benchmark-splice/backend/prefetch"
 	"benchmark-splice/backend/splice"
-	"benchmark-splice/mockserver"
 	"benchmark-splice/proxy"
 )
 
 const benchmarkBytes = backend.DefaultChunkSize * backend.DefaultChunks
 
-var clientConcurrency = flag.Int("client-concurrency", 1, "number of concurrent benchmark client downloads")
+var (
+	clientConcurrency = flag.Int("client-concurrency", 1, "number of concurrent benchmark client downloads")
+	upstreamURL       = flag.String("upstream", "http://127.0.0.1:8081/chunk", "mock chunk upstream URL")
+)
 
 func BenchmarkDownload512Chunks(b *testing.B) {
 	concurrency := *clientConcurrency
 	if concurrency <= 0 {
 		b.Fatalf("-client-concurrency must be positive, got %d", concurrency)
 	}
-
-	mock, err := mockserver.New(backend.DefaultChunkSize)
-	if err != nil {
-		b.Fatal(err)
-	}
-	mockServer := httptest.NewServer(mock)
-	defer mockServer.Close()
+	verifyUpstream(b, *upstreamURL)
 
 	cases := []backend.Handler{
 		prefetch.New(backend.DefaultReadAhead),
@@ -51,7 +48,7 @@ func BenchmarkDownload512Chunks(b *testing.B) {
 				b.Skip("splice backend is only supported on linux")
 			}
 
-			proxyServer := httptest.NewServer(proxy.New(mockServer.URL+"/chunk", tc))
+			proxyServer := httptest.NewServer(proxy.New(*upstreamURL, tc))
 			defer proxyServer.Close()
 
 			client := &http.Client{
@@ -69,6 +66,24 @@ func BenchmarkDownload512Chunks(b *testing.B) {
 				}
 			}
 		})
+	}
+}
+
+func verifyUpstream(b *testing.B, url string) {
+	b.Helper()
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Head(url)
+	if err == nil && resp.StatusCode == http.StatusMethodNotAllowed {
+		_ = resp.Body.Close()
+		resp, err = client.Get(url)
+	}
+	if err != nil {
+		b.Fatalf("mock upstream %s is unavailable: %v", url, err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b.Fatalf("mock upstream %s returned status %d", url, resp.StatusCode)
 	}
 }
 

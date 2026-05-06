@@ -27,13 +27,13 @@ Backends are `prefetch`, `io_copy`, and `splice`. The mock server returns one ra
 On Linux:
 
 ```sh
-go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem ./...
+go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -upstream http://127.0.0.1:8081/chunk
 ```
 
 Configure client-side concurrent downloads with `-client-concurrency` after `-args`:
 
 ```sh
-go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -client-concurrency=4
+go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -upstream http://127.0.0.1:8081/chunk -client-concurrency=4
 ```
 
 Sample result from Lima on Apple Silicon:
