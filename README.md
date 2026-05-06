@@ -36,13 +36,17 @@ Configure client-side concurrent downloads with `-client-concurrency` after `-ar
 go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -upstream http://127.0.0.1:8081/chunk -client-concurrency=4
 ```
 
-Sample result from Lima on Apple Silicon:
+Sample result:
 
 ```text
+# go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -upstream http://10.20.33.2:8081/chunk -client-concurrency=16
 goos: linux
-goarch: arm64
+goarch: amd64
 pkg: benchmark-splice
-BenchmarkDownload512Chunks/prefetch-4         	       1	2910753460 ns/op	1844.44 MB/s	26773425792 B/op	   96779 allocs/op
-BenchmarkDownload512Chunks/io_copy-4          	       1	1223050750 ns/op	4389.60 MB/s	26075960 B/op	   66561 allocs/op
-BenchmarkDownload512Chunks/splice-4           	       1	 707237167 ns/op	7591.10 MB/s	 5373464 B/op	   48228 allocs/op
+cpu: AMD EPYC 7542 32-Core Processor
+BenchmarkDownload512Chunks/prefetch/client_concurrency_16-128         	       1	30780339015 ns/op	2790.72 MB/s	192402831032 B/op	 1033966 allocs/op
+BenchmarkDownload512Chunks/io_copy/client_concurrency_16-128          	       1	29557244038 ns/op	2906.20 MB/s	482459616 B/op	  757211 allocs/op
+BenchmarkDownload512Chunks/splice/client_concurrency_16-128           	       1	29290101045 ns/op	2932.71 MB/s	57903696 B/op	  450179 allocs/op
+PASS
+ok  	benchmark-splice	89.684s
 ```
