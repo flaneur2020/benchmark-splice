@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync/atomic"
 
 	"benchmark-splice/backend"
 )
 
 type Handler struct {
-	chunk []byte
+	chunk       []byte
+	bytesServed atomic.Uint64
 }
 
 func New(size int64) (*Handler, error) {
@@ -28,6 +30,10 @@ func NewWithChunk(chunk []byte) *Handler {
 	return &Handler{chunk: append([]byte(nil), chunk...)}
 }
 
+func (h *Handler) BytesServed() uint64 {
+	return h.bytesServed.Load()
+}
+
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/chunk" {
 		http.NotFound(w, r)
@@ -36,5 +42,6 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Length", strconv.Itoa(len(h.chunk)))
 	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(h.chunk)
+	n, _ := w.Write(h.chunk)
+	h.bytesServed.Add(uint64(n))
 }
