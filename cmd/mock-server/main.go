@@ -22,7 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 	go logThroughput(handler)
-	log.Printf("mock server listening on %s, chunk_size=%d", *addr, *chunkSize)
+	log.Printf("mock server listening on %s , chunk_size=%d", *addr, *chunkSize)
 	log.Fatal(http.ListenAndServe(*addr, handler))
 }
 
