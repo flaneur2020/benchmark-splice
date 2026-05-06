@@ -10,7 +10,7 @@ import (
 	"benchmark-splice/mockserver"
 )
 
-const throughputInterval = 5 * time.Second
+const throughputInterval = 1 * time.Second
 
 func main() {
 	addr := flag.String("addr", ":8081", "listen address")
@@ -40,6 +40,6 @@ func logThroughput(handler *mockserver.Handler) {
 		}
 
 		gibPerSecond := float64(delta) / (1024 * 1024 * 1024) / throughputInterval.Seconds()
-		log.Printf("mock server IO throughput: %.2f GiBytes/s", gibPerSecond)
+		log.Printf("mock server IO throughput: %.6f GiBytes/s", gibPerSecond)
 	}
 }
