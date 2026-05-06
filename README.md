@@ -30,6 +30,12 @@ On Linux:
 go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem ./...
 ```
 
+Configure client-side concurrent downloads with `-client-concurrency` after `-args`:
+
+```sh
+go test -run '^$' -bench '^BenchmarkDownload512Chunks$' -benchmem . -args -client-concurrency=4
+```
+
 Sample result from Lima on Apple Silicon:
 
 ```text
